@@ -1,0 +1,36 @@
+# Virtual environments
+venv/
+.venv/
+env/
+.env
+.env.local
+.env.*
+
+# Python bytecode and caches
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+
+# IDE and OS settings
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Vercel deployment cache
+.vercel
+
+# Gradio cache
+.gradio/
+
+# Deprecated datasets and temporary files
+*.csv
+*.log
+
+# Models (Keep directory tracked via .gitkeep)
+backend/models/*.pkl
+!backend/models/.gitkeep

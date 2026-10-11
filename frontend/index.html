@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#172536">
+    <title>Flight Operations | Departure Intelligence</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="script.js" defer></script>
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <a class="brand" href="/" aria-label="Flight Operations home">
+          <span class="brand-mark">FO</span>
+          <span class="brand-copy"><strong>FLIGHT</strong><small>OPERATIONS</small></span>
+        </a>
+
+        <div class="sidebar-label">WORKSPACE</div>
+        <nav class="primary-nav" aria-label="Main navigation">
+          <button class="nav-link active" type="button" data-view="overview" aria-current="page">Departure overview</button>
+          <button class="nav-link" type="button" data-view="prediction">Delay prediction</button>
+        </nav>
+
+        <div class="sidebar-footer">
+          <div class="status-line"><span class="status-dot" id="status-dot"></span><span id="system-status">Connecting</span></div>
+          <p>Flight data and weather</p>
+        </div>
+      </aside>
+
+      <main class="main-content">
+        <header class="topbar">
+          <div class="breadcrumb"><span>OPERATIONS</span><span class="breadcrumb-divider">/</span><span id="breadcrumb-current">OVERVIEW</span></div>
+          <div class="topbar-meta"><span class="live-indicator"></span><span>LIVE DATA</span><span class="topbar-date" id="today-label"></span></div>
+        </header>
+
+        <section class="view active" id="overview-view" aria-labelledby="overview-title">
+          <div class="page-heading">
+            <div>
+              <p class="eyebrow">NETWORK PERFORMANCE</p>
+              <h1 id="overview-title">Departure overview</h1>
+              <p class="page-subtitle">Flight activity, delay patterns, and route volume.</p>
+            </div>
+            <label class="filter-control" for="origin-filter">
+              <span>DEPARTURE AIRPORT</span>
+              <select id="origin-filter" aria-label="Filter by departure airport">
+                <option value="">All airports</option>
+              </select>
+            </label>
+          </div>
+
+          <div class="error-banner hidden" id="overview-error" role="alert"></div>
+          <div class="loading-state" id="overview-loading">Loading flight data...</div>
+          <div id="overview-content" class="hidden">
+            <div class="metric-grid" aria-label="Flight summary">
+              <article class="metric-card metric-primary"><div class="metric-label">TOTAL FLIGHTS</div><div class="metric-value" id="metric-flights">—</div><div class="metric-foot">In the selected view</div></article>
+              <article class="metric-card"><div class="metric-label">DELAYED 15+ MIN</div><div class="metric-value" id="metric-delayed">—</div><div class="metric-foot">Scheduled departures</div></article>
+              <article class="metric-card"><div class="metric-label">DELAY RATE</div><div class="metric-value" id="metric-rate">—</div><div class="metric-foot">Share of all flights</div></article>
+              <article class="metric-card metric-warm"><div class="metric-label">AVERAGE POSITIVE DELAY</div><div class="metric-value" id="metric-average">—</div><div class="metric-foot">Minutes when delayed</div></article>
+            </div>
+
+            <div class="section-heading"><div><p class="eyebrow">TREND ANALYSIS</p><h2>Delay patterns</h2></div><span class="section-unit">MONTHLY VIEW</span></div>
+            <div class="trend-grid">
+              <article class="panel trend-panel">
+                <div class="panel-heading"><div><h3>Departure delay rate</h3><p>Flights delayed 15 minutes or more</p></div><span class="chart-key"><span class="key-dot blue"></span>DELAY RATE</span></div>
+                <div class="chart-wrap" id="delay-chart" role="img" aria-label="Monthly departure delay rate chart"></div>
+              </article>
+              <article class="panel trend-panel">
+                <div class="panel-heading"><div><h3>Average delay</h3><p>Positive delay duration in minutes</p></div><span class="chart-key"><span class="key-dot orange"></span>MINUTES</span></div>
+                <div class="chart-wrap" id="average-chart" role="img" aria-label="Monthly average delay chart"></div>
+              </article>
+            </div>
+
+            <div class="section-heading lower-heading"><div><p class="eyebrow">NETWORK ACTIVITY</p><h2>Airports and routes</h2></div><span class="section-unit">TOP 10 BY VOLUME</span></div>
+            <div class="volume-grid">
+              <article class="panel volume-panel"><div class="panel-heading"><div><h3>Busiest departure airports</h3><p>Flight count by origin</p></div></div><div class="bar-list" id="origin-bars"></div></article>
+              <article class="panel volume-panel"><div class="panel-heading"><div><h3>Most active routes</h3><p>Flight count by route</p></div></div><div class="bar-list" id="route-bars"></div></article>
+            </div>
+          </div>
+        </section>
+
+        <section class="view" id="prediction-view" aria-labelledby="prediction-title" hidden>
+          <div class="page-heading prediction-heading">
+            <div><p class="eyebrow">FLIGHT PLANNING</p><h1 id="prediction-title">Delay prediction</h1><p class="page-subtitle">Estimate the likelihood of a departure delay of 15 minutes or more.</p></div>
+            <div class="model-status"><span class="status-dot" id="model-dot"></span><span id="model-status">Checking model</span></div>
+          </div>
+          <div class="error-banner hidden" id="prediction-error" role="alert"></div>
+          <form id="prediction-form" class="prediction-layout">
+            <div class="panel form-panel">
+              <div class="form-section-heading"><span class="section-number">01</span><div><h2>Flight schedule</h2><p>Scheduled departure details</p></div></div>
+              <div class="field-grid">
+                <label class="field"><span>Departure month</span><select name="month" id="month-input" required></select></label>
+                <label class="field"><span>Day of week</span><select name="day_of_week" id="weekday-input" required></select></label>
+                <label class="field field-wide"><span>Scheduled departure time</span><input name="departure_time" type="text" inputmode="text" pattern="(?:[01][0-9]|2[0-3]):[0-5][0-9]" maxlength="5" value="09:00" placeholder="HH:MM" title="Enter a 24-hour time, for example 09:30." autocomplete="off" required></label>
+              </div>
+              <div class="form-section-heading weather-heading"><span class="section-number orange-number">02</span><div><h2>Weather conditions</h2><p>Conditions at scheduled departure</p></div></div>
+              <div class="field-grid weather-fields">
+                <label class="field"><span>Visibility <small>miles</small></span><input name="visibility" type="number" min="0" step="0.5" value="10" required></label>
+                <label class="field"><span>Temperature <small>°F</small></span><input name="temperature" type="number" min="-100" max="150" step="1" value="55" required></label>
+                <label class="field"><span>Relative humidity <small>%</small></span><input name="humidity" type="number" min="0" max="100" step="1" value="60" required></label>
+                <label class="field"><span>Wind speed <small>knots</small></span><input name="wind_speed" type="number" min="0" step="1" value="8" required></label>
+                <label class="field"><span>Precipitation <small>inches</small></span><input name="precipitation" type="number" min="0" step="0.01" value="0" required></label>
+              </div>
+              <div class="form-actions"><p>Prediction threshold <strong>15 minutes</strong></p><button class="primary-button" id="predict-button" type="submit">Calculate probability</button></div>
+            </div>
+            <aside class="result-panel panel" id="prediction-result" aria-live="polite">
+              <p class="eyebrow">MODEL ESTIMATE</p>
+              <div class="result-empty" id="result-empty"><span class="result-rule"></span><h2>Awaiting flight details</h2><p>Complete the schedule and weather fields to see a delay estimate.</p></div>
+              <div class="result-populated hidden" id="result-populated"><div class="result-label">DELAY PROBABILITY</div><div class="result-value" id="result-probability">—</div><div class="probability-track"><span id="probability-fill"></span></div><p class="result-classification" id="result-classification"></p><p class="result-note">Estimated likelihood of a departure delay of 15 minutes or more.</p></div>
+            </aside>
+          </form>
+        </section>
+
+        <footer class="page-footer"><span>FLIGHT OPERATIONS</span><span>DEPARTURE INTELLIGENCE</span></footer>
+      </main>
+    </div>
+  </body>
+</html>
